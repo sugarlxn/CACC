@@ -1,6 +1,5 @@
 #pragma GCC optimize(2, 3, "Ofast", "inline")
 #include <bits/stdc++.h>
-// #include <iostream>
 using namespace std;
 #define endl '\n'
 using i64 = long long;
@@ -38,36 +37,27 @@ void log(T firstArg, Args... args){
 }
 };
 
+///write down your code here:[begin] 
 // global var
 const int N = 2e5+5;
 int a[N];
-int n,m,t;
+int n,m,t,k,q;
+
+vector<vector<int>> v;
+vector<int> cnt;
+vector<string> ans;
 
 void solution(){
-    cin >> n >> m >> t;
-    lxn::log("nmt",n,m,t);
-    for(int i=0; i<n*m; i++) cin >> a[i];    
-    while(t--){
-        int op,x,y;
-        if(op==1){n=x;m=y;}
-        else if(op==2){
-            vector<int> b(a, a+n*m);
-            swap(n,m);
-            for(int i=0; i<n; i++){
-                for(int j=0; j<m; j++){
-                    a[i*m+j] = b[j*n+i];
-                }
-            }
-        }
-        else cout << a[x*m+y] << endl;
-    }
-}
+
+};
+
+///write down your code here:[end]
 
 int main(int argc, char * argv[]){
 
 #ifdef LOCAL
-    freopen("/home/lxn/CACC/2test/data.in","r",stdin);
-    freopen("/home/lxn/CACC/2test/data.out","w",stdout);
+    freopen("/home/lxn/CACC/template_cpp/data.in","r",stdin);
+    freopen("/home/lxn/CACC/template_cpp/data.out","w",stdout);
 #endif
 
     int iterations = 1;
