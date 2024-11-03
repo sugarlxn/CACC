@@ -62,10 +62,94 @@ struct node{
 };
 //优先级队列
 priority_queue<node> pq;
-
+struct Info{
+    multiset<int> posi; //允许相同的键插入 集合set
+    int cnt, vis;
+};
+map<pair<int,int>, Info> mpInfo;
+Info& getInfo(int id1, int id2){
+    if(mpInfo.count({id1,id2})) return mpInfo[{id1,id2}]; //map.count Returns the number of elements with key `key`
+    else return mpInfo[{id1,id2}] = {multiset<int>(),0,0};
+}
 
 void solution(){
+    cin >> n >> m; //n 行 最长词汇表m
+    vector<string> s(n);
+    vector<int> vis(26,0);//vis 存储26个字母
+    v.resize(n), cnt.resize(n);
+    for(int i=0; i<n; i++){
+        cin >> s[i] >> cnt[i]; //s[i] 为vector<string> 存储词汇，cnt[i]: vector<int> 存储出现频率
+        for(auto& ch : s[i]) vis[ch - 'a'] = 1;
+    }
 
+    for(int i=0; i<26; i++){
+        if(vis[i]){
+            ans.emplace_back(string(1, 'a' + i));
+        }
+        if(i) vis[i] += vis[i-1];
+    }
+
+    for(int i=0; i<n; i++){
+        for(int j=0; j<s[i].length();j++){
+            v[i].emplace_back(vis[s[i][j]- 'a'] - 1);
+            if(j){
+                Info& info = getInfo(v[i][j-1], v[i][j]);
+                info.posi.emplace(i), info.cnt += cnt[i], ++info.vis;
+                pq.emplace((node){v[i][j-1], v[i][j], info.cnt, info.vis});
+            }
+        }
+    }
+    while (ans.size() < m) {
+        while (pq.size() && pq.top().vis != mpInfo[{pq.top().id1, pq.top().id2}].vis) pq.pop();
+        if (pq.empty()) break;
+        if (pq.top().cnt == 0) break;
+
+        int id1 = pq.top().id1, id2 = pq.top().id2;
+        lxn::log(id1, id2);
+        Info& info = getInfo(id1, id2);
+        pq.pop();
+        ans.emplace_back(ans[id1] + ans[id2]);
+
+        for (auto i : info.posi) {
+            int p = -1;
+            for (int j = 0; j < v[i].size() - 1; j++)
+                if (v[i][j] == id1 && v[i][j + 1] == id2) {
+                    p = j;
+                    break;
+                }
+            if (p == -1) continue;
+
+            auto remove = [&] (int id1, int id2, int idx) {
+                Info& tem = getInfo(id1, id2);
+                if (&tem.posi == &info.posi) return;
+                tem.posi.erase(tem.posi.find(idx));
+                tem.cnt -= cnt[idx], ++tem.vis;
+                pq.emplace((node){id1, id2, tem.cnt, tem.vis});
+            };
+            auto add = [&] (int id1, int id2, int idx) {
+                Info& tem = getInfo(id1, id2);
+                if (&tem.posi == &info.posi) return;
+                tem.posi.emplace(idx);
+                tem.cnt += cnt[idx], ++tem.vis;
+                pq.emplace((node){id1, id2, tem.cnt, tem.vis});
+            };
+
+            if (p) remove(v[i][p - 1], v[i][p], i);
+            if (p + 2 < v[i].size()) remove(v[i][p + 1], v[i][p + 2], i);
+
+            v[i].erase(v[i].begin() + p + 1);
+            v[i][p] = ans.size() - 1;
+
+            if (p) add(v[i][p - 1], v[i][p], i);
+            if (p + 1 < v[i].size()) add(v[i][p], v[i][p + 1], i);
+        }
+
+        info.posi.clear();
+        info.cnt = 0, ++info.vis;
+        pq.emplace((node){id1, id2, info.cnt, info.vis});
+    }
+
+    for (auto& str : ans) cout << str << endl;
 };
 
 ///write down your code here:[end]
