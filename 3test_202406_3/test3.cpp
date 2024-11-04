@@ -43,12 +43,12 @@ const int N = 2e5+5;
 int a[N];
 int n,m,t,k,q;
 
-vector<vector<int>> v;
-vector<int> cnt;
-vector<string> ans;
+vector<vector<int>> v; 
+vector<int> cnt; //存储词汇出现频率
+vector<string> ans; //存储词汇表
 
-struct node{
-    int id1,id2,cnt,vis; 
+struct node{ // node 的数据成员有四个 int 类型的 id1, id2, cnt, vis
+    int id1,id2,cnt,vis;  
     bool operator < (const node& t) const{
         if(cnt != t.cnt) return cnt < t.cnt;
         if(ans[id1].length() != ans[t.id1].length()){
@@ -74,19 +74,19 @@ Info& getInfo(int id1, int id2){
 
 void solution(){
     cin >> n >> m; //n 行 最长词汇表m
-    vector<string> s(n);
+    vector<string> s(n); //存储词汇表 词汇
     vector<int> vis(26,0);//vis 存储26个字母
     v.resize(n), cnt.resize(n);
     for(int i=0; i<n; i++){
         cin >> s[i] >> cnt[i]; //s[i] 为vector<string> 存储词汇，cnt[i]: vector<int> 存储出现频率
-        for(auto& ch : s[i]) vis[ch - 'a'] = 1;
+        for(auto& ch : s[i]) vis[ch - 'a'] = 1;  //统计出现的字母
     }
 
     for(int i=0; i<26; i++){
         if(vis[i]){
-            ans.emplace_back(string(1, 'a' + i));
+            ans.emplace_back(string(1, 'a' + i)); //将字母存入词汇表
         }
-        if(i) vis[i] += vis[i-1];
+        if(i) vis[i] += vis[i-1]; // ？ 
     }
 
     for(int i=0; i<n; i++){
@@ -95,11 +95,11 @@ void solution(){
             if(j){
                 Info& info = getInfo(v[i][j-1], v[i][j]);
                 info.posi.emplace(i), info.cnt += cnt[i], ++info.vis;
-                pq.emplace((node){v[i][j-1], v[i][j], info.cnt, info.vis});
+                pq.emplace((node){v[i][j-1], v[i][j], info.cnt, info.vis}); //优先级队列
             }
         }
     }
-    while (ans.size() < m) {
+    while (ans.size() < m) { 
         while (pq.size() && pq.top().vis != mpInfo[{pq.top().id1, pq.top().id2}].vis) pq.pop();
         if (pq.empty()) break;
         if (pq.top().cnt == 0) break;
@@ -119,6 +119,8 @@ void solution(){
                 }
             if (p == -1) continue;
 
+            // lampda 表达式 [capture list] (parameter list) -> return type { function body }
+            // remove 函数从posi 集合中删除一个元素并更新 cnt 和 vis，然后将一个新的 node 对象添加到优先队列中
             auto remove = [&] (int id1, int id2, int idx) {
                 Info& tem = getInfo(id1, id2);
                 if (&tem.posi == &info.posi) return;
@@ -126,6 +128,7 @@ void solution(){
                 tem.cnt -= cnt[idx], ++tem.vis;
                 pq.emplace((node){id1, id2, tem.cnt, tem.vis});
             };
+            // add 函数向 posi 集合中添加一个元素并更新 cnt 和 vis，然后将一个新的 node 对象添加到优先队列中
             auto add = [&] (int id1, int id2, int idx) {
                 Info& tem = getInfo(id1, id2);
                 if (&tem.posi == &info.posi) return;
